@@ -1,0 +1,98 @@
+#Surya Teja Pidakala
+#U99286608
+
+rm(list=ls())
+library(rio)
+library(moments)
+
+Surya_Exam9=import("C:\\Users\\suria\\Downloads\\6304 Module 9 Assignment Data.xlsx")
+colnames(Surya_Exam9)=tolower(make.names(colnames(Surya_Exam9)))
+
+#2
+suryas_data.df = subset(Surya_Exam9, cylinders == 4 | 
+                   cylinders == 6 |
+                   cylinders == 8)
+suryas_data.df = subset(suryas_data.df, fuel =='gas' |
+                   fuel =='diesel')
+IllinoisData = subset(suryas_data.df, region =='champaign urbana' |
+                        region == 'chicago'|
+                        region == 'danville' |
+                        region == 'peoria, IL' |
+                        region == 'quad cities, IA/IL' |
+                        region == 'rockford, IL' |
+                        region == 'southern illinois' |
+                        region == 'springfield, IL')
+TexasData = subset(suryas_data.df, region == 'amarillo, TX' |
+                     region == 'austin, TX' |
+                     region == 'brownsville, TX' |
+                     region == 'college station, TX' |
+                     region == 'corpus christi, TX' |
+                     region == 'dallas / fort worth' |
+                     region == 'el paso, TX' |
+                     region == 'galveston, TX' |
+                     region == 'houston, TX' |
+                     region == 'lubbock, TX' |
+                     region == 'odessa / midland' |
+                     region == 'tyler / east TX' |
+                     region == 'waco, TX')
+
+NCData = subset(suryas_data.df, region == 'asheville, NC' |
+                  region == 'boone, NC' |
+                  region == 'charlotte, NC' |
+                  region == 'eastern NC' |
+                  region == 'fayetteville, NC' |
+                  region == 'greensboro, NC' |
+                  region == 'wilmington, NC' |
+                  region == 'winston-salem, NC')
+
+IllinoisData$state=rep('Illinois',nrow(IllinoisData))
+TexasData$state =rep("Texas",nrow(TexasData))
+NCData$state =rep("NorthCarolina",nrow(NCData))
+
+set.seed(99286608)
+Illinois_sset = IllinoisData[sample(1:nrow(IllinoisData), 150, replace = FALSE),]
+Texas_sset = TexasData[sample(1:nrow(TexasData), 150, replace = FALSE),]
+NC_sset = NCData[sample(1:nrow(NCData), 150, replace = FALSE),]
+MainData = rbind(Illinois_sset, Texas_sset, NC_sset)
+str(MainData)
+MainData$state = as.factor(MainData$state)
+
+
+#ANALYSIS
+
+#1
+library(car)
+library(dplyr)
+car::leveneTest(asking.price~region, MainData)
+
+
+#2
+AnovaTest=aov(asking.price~state, MainData)
+summary(AnovaTest)
+Tukey_Analysis=TukeyHSD(AnovaTest)
+Tukey_Analysis
+plot(Tukey_Analysis)
+
+#3
+car::leveneTest(asking.price~region, MainData)
+
+AnovaTest1=aov(odometer~state, MainData)
+summary(AnovaTest1)
+Tukey_Analysis1=TukeyHSD(AnovaTest1)
+Tukey_Analysis1
+plot(Tukey_Analysis)
+
+#4
+AnovaTest2=aov(asking.price~region, Illinois_sset)
+summary(AnovaTest2)
+Tukey_Analysis2=TukeyHSD(AnovaTest2)
+Tukey_Analysis2
+plot(Tukey_Analysis2)
+
+#5
+AnovaTest3=aov(asking.price~fuel+condition, MainData)
+summary(AnovaTest3)
+Tukey_Analysis3=TukeyHSD(AnovaTest3)
+Tukey_Analysis3
+par(mfrow=c(2,2))
+plot(Tukey_Analysis3)
